@@ -1,3 +1,6 @@
+#ifndef VECTOR_H_INCLUDED
+#define VECTOR_H_INCLUDED
+
 #include <array>
 #include <cmath>
 #include <initializer_list>
@@ -108,3 +111,5 @@ class Vec4 : public Vector<T, 4> {
 public:
     Vec4() : Vector<T, 4>() {}
 };
+
+#endif
