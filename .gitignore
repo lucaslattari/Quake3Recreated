@@ -1,0 +1,125 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+*.run
+
+# Visual Studio files
+*.sdf
+*.suo
+*.opensdf
+*.user
+*.VC.db
+*.VC.VC.opendb
+*.VC.VC.db
+*.vscode
+*.vstest
+*.sln
+*.vcxproj
+*.filters
+.vs
+.vsconfig
+
+# IntelliSense
+*.ipch
+*.aps
+*.ncb
+*.aps
+*.aps~
+*.opt
+*.plg
+*.bsc
+
+# CMake
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+CMakeCacheClean.bat
+CMakeCacheClean.sh
+cmake_install.cmake
+
+# Generated files
+Debug/
+Release/
+x64/
+ipch/
+*.ilk
+*.meta
+*.obj
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.sdf
+*.suo
+*.user
+*.manifest
+*.res
+*.tlog
+*.tlog.lock
+*.tmp
+*.log
+*.cbs.log
+
+# Qt Creator
+*.autosave
+*.backup.*
+*.qmlproject.user
+*.pro.user
+*.qbs.user
+*.qmake.cache
+*.qmake.stash
+*.cmake.project.user
+*.cmake.workspace.user
+*.qbs/Qt\ Creator\ CMake\ Project\ Files
+*.qbs/Qt\ Creator\ Qbs\ Project\ Files
+
+# XCode
+*.dSYM
+*.xcconfig
+*.xccheckout
+*.xcscmblueprint
+*.xcscheme
+*.xcuserdatad
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/
+*.xcodeproj/xcshareddata/
+*.xcodeproj/*.pbxuser
+*.xcodeproj/*.perspectivev3
+*.xcodeproj/*.mode1v3
+
+# Android
+local.properties
+*.apk
+*.aab
+*.gradle
+
+# Other
+.idea/
+.vscode/
+*.ini
+*.lock
+*.sqlite3

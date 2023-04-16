@@ -1,0 +1,3 @@
+The aim of this project is to recreate the Quake 3 game in C++ for study purposes, with a particular focus on the visual aspects. The code is intended to serve as a learning resource for those interested in graphics programming and game development.
+
+O objetivo deste projeto é recriar o jogo Quake 3 em C++ para fins de estudo, com um foco especial nos aspectos visuais. O código é destinado a servir como um recurso de aprendizado para aqueles interessados em programação gráfica e desenvolvimento de jogos.
