@@ -1,13 +1,14 @@
-#ifndef BSP_H_INCLUDED
-#define BSP_H_INCLUDED
+#pragma once
 
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 
-#include "vector.h"
 #include "BSPElement.h"
+#include "BSPVertices.h"
+#include "BSPFaces.h"
+#include "vector.h"
 
 // This is our BSP header structure
 struct BSPHeader
@@ -25,14 +26,13 @@ public:
 	bool load(const std::string& filename);
 private:
     BSPHeader header;
-    BSPLumpData lumps[MAX_LUMPS];
+    BSPLumpData lumps[static_cast<int>(LUMPS::MAXLUMPS)];
 
     BSPVertices vertices;
     BSPFaces    faces;
     BSPTextures textures;
+    BSPLightmaps lightmaps;
 
     void displayHeaderData(BSPHeader& header);
-    void displayLumpData(BSPLumpData(&lumps)[MAX_LUMPS]);
+    void displayLumpData(BSPLumpData(&lumps)[static_cast<int>(LUMPS::MAXLUMPS)]);
 };
-
-#endif // BSP_H_INCLUDED

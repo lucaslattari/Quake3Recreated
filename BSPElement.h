@@ -1,8 +1,8 @@
-#ifndef BSP_ELEMENT_H_INCLUDED
-#define BSP_ELEMENT_H_INCLUDED
+#pragma once
 
 #include <iostream>
 #include <fstream>
+#include <array>
 #include <string>
 #include <vector>
 
@@ -14,8 +14,7 @@ struct BSPLumpData
     int length;		// The length in chars for this lump
 };
 
-// This is our lumps enumeration
-enum LUMPS
+enum class LUMPS
 {
     ENTITIES = 0,	    // Stores player/object positions, etc...
     TEXTURES,			// Stores texture information
@@ -31,15 +30,18 @@ enum LUMPS
     INDICES,			// Stores the level indices
     SHADERS,			// Stores the shader files (blending, anims..)
     FACES,				// Stores the faces for the level
-    LIGHT_MAPS,			// Stores the lightmaps for the level
-    LIGHT_VOLUMES,		// Stores extra world lighting information
+    LIGHTMAPS,			// Stores the lightmaps for the level
+    LIGHTVOLUMES,		// Stores extra world lighting information
     VISDATA,			// Stores PVS and cluster info (visibility)
-    MAX_LUMPS			// A constant to store the number of lumps
+    MAXLUMPS			// A constant to store the number of lumps
 };
 
 template <typename T>
 class BSPElement {
 public:
+    BSPElement() = default;
+    virtual ~BSPElement() = default;
+
     virtual void readData(std::ifstream& file, BSPLumpData& lumpData) {
         int numberOfElements = static_cast<int>(std::ceil(static_cast<float>(lumpData.length) / sizeof(T)));
         elements.resize(numberOfElements);
@@ -50,59 +52,10 @@ public:
         validateData();
     }
 
-    virtual void displayData() = 0;
+    virtual void displayData() const = 0;
     virtual void validateData() = 0;
 protected:
     std::vector<T> elements;
-};
-
-// BSP vertex class
-class BSPVertex {
-public:
-    Vector<float, 3> position;		// (x, y, z) position. 
-    Vector<float, 2> textureCoord;	// (u, v) texture coordinate
-    Vector<float, 2> lightmapCoord;	// (u, v) lightmap coordinate
-    Vector<float, 3> normal;		// (x, y, z) normal vector
-    char color[4];			        // RGBA color for the vertex 
-
-    //FIX ME: Update constructors and destructors
-    BSPVertex() {};
-    ~BSPVertex() {};
-};
-
-class BSPVertices : public BSPElement<BSPVertex>{
-public:
-    void validateData() override;
-    void displayData() override;
-    void updateYAndZ();
-};
-
-class BSPFace {
-public:
-    int textureID;
-    int effect;
-    int type;
-    int startVertIndex;
-    int numOfVerts;
-    int startIndex;
-    int numOfIndices;
-    int lightmapID;
-    int lightMapCorner[2];
-    int lightMapSize[2];
-    Vector<float, 3> lightMapPos;
-    Vector<float, 3> lightMapVecs[2];
-    Vector<float, 3> normal;
-    int size[2];
-
-    //FIX ME: Update constructors and destructors
-    BSPFace() {};
-    ~BSPFace() {};
-};
-
-class BSPFaces : public BSPElement<BSPFace> {
-public:
-    void validateData() override;
-    void displayData() override;
 };
 
 // BSP texture class
@@ -120,7 +73,28 @@ public:
 class BSPTextures : public BSPElement<BSPTexture> {
 public:
     void validateData() override;
-    void displayData() override;
+    void displayData() const override;
 };
 
-#endif
+class BSPLightmap {
+public:
+    BSPLightmap() {};
+    ~BSPLightmap() {};
+
+    // The RGB data in a 128x128 image
+    std::array<std::array<std::array<char, 3>, 128>, 128> imageBits; 
+};
+
+class BSPLightmaps : public BSPElement<BSPLightmap> {
+public:
+    void validateData() override;
+    void displayData() const override;
+};
+
+class BSPNode {
+    int plane;                  // The index into the planes array
+    int front;                  // The child index for the front node
+    int back;                   // The child index for the back node
+    std::array<int, 3> min;     // The bounding box min position
+    std::array<int, 3> max;     // The bounding box max position
+};
