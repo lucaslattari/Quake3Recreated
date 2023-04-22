@@ -17,6 +17,14 @@ public:
         };
     };
 
+    T& operator[](int index) {
+        return data[index];
+    }
+
+    const T& operator[](int index) const {
+        return data[index];
+    }
+
     Vector() : data{} {}
 
     Vector(const T* values) {

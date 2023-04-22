@@ -5,34 +5,45 @@
 #include <string>
 #include <vector>
 
-#include "BSPElement.h"
-#include "BSPVertices.h"
-#include "BSPFaces.h"
+#include "BSPelement.h"
+#include "vertices.h"
+#include "faces.h"
+#include "textures.h"
+#include "lightmaps.h"
+#include "nodes.h"
+#include "leaves.h"
+#include "planes.h"
+
 #include "vector.h"
 
-// This is our BSP header structure
-struct BSPHeader
-{
-    char strID[4];	// This should always be 'IBSP'
-    int version;	// This should be 0x2e for Quake 3 files
-};
+namespace BSP {
+    // This is our BSP header structure
+    struct Header
+    {
+        char strID[4];	// This should always be 'IBSP'
+        int version;	// This should be 0x2e for Quake 3 files
+    };
 
-class Quake3BSPLoader 
-{
-public:
-    Quake3BSPLoader();
-    ~Quake3BSPLoader();
+    class Loader
+    {
+    public:
+        Loader();
+        ~Loader();
 
-	bool load(const std::string& filename);
-private:
-    BSPHeader header;
-    BSPLumpData lumps[static_cast<int>(LUMPS::MAXLUMPS)];
+        bool load(const std::string& filename);
+    private:
+        Header header;
+        LumpData lumps[static_cast<int>(LUMPS::MAXLUMPS)];
 
-    BSPVertices vertices;
-    BSPFaces    faces;
-    BSPTextures textures;
-    BSPLightmaps lightmaps;
+        Vertices    vertices;
+        Faces       faces;
+        Textures    textures;
+        Lightmaps   lightmaps;
+        Nodes       nodes;
+        Leaves      leaves;
+        Planes      planes;
 
-    void displayHeaderData(BSPHeader& header);
-    void displayLumpData(BSPLumpData(&lumps)[static_cast<int>(LUMPS::MAXLUMPS)]);
-};
+        void displayHeaderData(Header& header);
+        void displayLumpData(LumpData(&lumps)[static_cast<int>(LUMPS::MAXLUMPS)]);
+    };
+}

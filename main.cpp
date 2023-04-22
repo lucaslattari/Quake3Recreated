@@ -11,6 +11,13 @@ void errorCallback(int error, const char* description) {
     cout << "GLFW Error (" << error << "): " << description << endl;
 }
 
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, true);
+    }
+}
+
 //called whenever the window is resized
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -58,7 +65,7 @@ int main(int argc, char* argv[]) {
 
     setWindowHints();
 
-    Quake3BSPLoader q3bsp_map;
+    BSP::Loader q3bsp_map;
     if (!q3bsp_map.load("maps/render.bsp")) {
         std::cerr << "Error loading BSP file" << std::endl;
         return -1;
@@ -73,6 +80,9 @@ int main(int argc, char* argv[]) {
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+
+    // Register the key callback function
+    glfwSetKeyCallback(window, keyCallback);
 
     if (!initGLAD()) {
         glfwDestroyWindow(window);
