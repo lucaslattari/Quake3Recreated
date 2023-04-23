@@ -10,7 +10,7 @@ namespace BSP {
 	}
 
 	//FIX ME: complete this function
-	void Textures::validateData() {
+	void Textures::validate() {
 		for (const auto& texture : elements) {
 		}
 	}

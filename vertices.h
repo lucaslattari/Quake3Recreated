@@ -35,7 +35,8 @@ namespace BSP {
 
     class Vertices : public BSP::Element<Vertex> {
     public:
-        void validateData() override;
+        void load(std::ifstream& file, LumpData& lumpData) override;
+        void validate() override;
         void displayData() const override;
         void updateYAndZ();
     };

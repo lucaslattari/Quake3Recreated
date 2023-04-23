@@ -1,18 +1,23 @@
 #include "vertices.h"
 
 namespace BSP {
+	void Vertices::load(std::ifstream& file, LumpData& lumpData) {
+		Element::load(file, lumpData);
+		updateYAndZ();
+	}
+
 	// Swap the y and z values, and negate the new z so Y is up 
 	// the swapping of y and z values and negating the new z value is related 
 	// to the differences in coordinate systems used in the Quake 3 engine and 
 	// most 3D modeling software
 	void Vertices::updateYAndZ() {
-		for (int i = 0; i < elements.size(); i++) {
-			Vector<float, 3> newPosition = elements[i].getPosition();
+		for (auto& vertex : elements) {
+			Vector<float, 3> newPosition = vertex.getPosition();
 
-			newPosition.y = elements[i].getPosition().z;
-			newPosition.z = -elements[i].getPosition().y;
+			newPosition.y = vertex.getPosition().z; // Access z using () instead of .z
+			newPosition.z = -vertex.getPosition().y; // Access y using () instead of .y
 
-			elements[i].setPosition(newPosition);
+			vertex.setPosition(newPosition);
 		}
 	}
 
@@ -28,7 +33,7 @@ namespace BSP {
 		}
 	}
 
-	void Vertices::validateData() {
+	void Vertices::validate() {
 		constexpr float minPosition = -std::numeric_limits<float>::max(); //max, dont change
 		constexpr float maxPosition = std::numeric_limits<float>::max();
 

@@ -2,7 +2,7 @@
 #include "utils.h"
 
 namespace BSP {
-    void Faces::validateData() {
+    void Faces::validate() {
         for (const auto& face : elements) {
             warning_assert(face.getTextureID() >= 0, "TextureID is negative.");
 

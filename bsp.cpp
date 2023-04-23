@@ -51,31 +51,59 @@ namespace BSP {
 		file.read(reinterpret_cast<char*>(lumps), 
 				  static_cast<int>(LUMPS::MAXLUMPS) * sizeof(LumpData));
 
-		// Read the vertex data
-		vertices.readData(file, lumps[static_cast<int>(LUMPS::VERTICES)]);
-		vertices.updateYAndZ();
-
-		// Read the face data
-		faces.readData(file, lumps[static_cast<int>(LUMPS::FACES)]);
-
-		// Read texture data
-		textures.readData(file, lumps[static_cast<int>(LUMPS::TEXTURES)]);
-
-		// Read lightmap data
-		lightmaps.readData(file, lumps[static_cast<int>(LUMPS::LIGHTMAPS)]);
-
-		// Read nodes data
-		nodes.readData(file, lumps[static_cast<int>(LUMPS::NODES)]);
-
-		// Read leaves data
-		leaves.readData(file, lumps[static_cast<int>(LUMPS::LEAVES)]);
-
-		// Read planes data
-		planes.readData(file, lumps[static_cast<int>(LUMPS::PLANES)]);
-
+		loadLumps(file);
+	
 		file.close();
 
 		return true;
+	}
+
+	void Loader::loadLumps(std::ifstream& file)
+	{
+		// Read the vertex data
+		vertices.load(file, lumps[static_cast<int>(LUMPS::VERTICES)]);
+
+		// Read the face data
+		faces.load(file, lumps[static_cast<int>(LUMPS::FACES)]);
+
+		// Read texture data
+		textures.load(file, lumps[static_cast<int>(LUMPS::TEXTURES)]);
+
+		// Read lightmap data
+		lightmaps.load(file, lumps[static_cast<int>(LUMPS::LIGHTMAPS)]);
+
+		// Read nodes data
+		nodes.load(file, lumps[static_cast<int>(LUMPS::NODES)]);
+
+		// Read leaves data
+		leaves.load(file, lumps[static_cast<int>(LUMPS::LEAVES)]);
+
+		// Read planes data
+		planes.load(file, lumps[static_cast<int>(LUMPS::PLANES)]);
+
+		// Read pvs (potentially visible sets) data
+		pvs.load(file, lumps[static_cast<int>(LUMPS::PVS)]);
+
+		// Read brushes data
+		brushes.load(file, lumps[static_cast<int>(LUMPS::BRUSHES)]);
+
+		// Read brush sides data
+		brushsides.load(file, lumps[static_cast<int>(LUMPS::BRUSH_SIDES)]);
+
+		// Read indices data
+		indices.load(file, 
+			lumps[static_cast<int>(LUMPS::INDICES)].length,
+			lumps[static_cast<int>(LUMPS::INDICES)].offset);
+
+		// Read leaf faces data
+		leafFaces.load(file,
+			lumps[static_cast<int>(LUMPS::LEAF_FACES)].length,
+			lumps[static_cast<int>(LUMPS::LEAF_FACES)].offset);
+
+		// Read leaf brushes data
+		leafBrushes.load(file,
+			lumps[static_cast<int>(LUMPS::LEAF_BRUSHES)].length,
+			lumps[static_cast<int>(LUMPS::LEAF_BRUSHES)].offset);
 	}
 
 	void Loader::displayHeaderData(Header& header) {

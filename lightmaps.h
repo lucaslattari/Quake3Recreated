@@ -14,7 +14,7 @@ namespace BSP {
 
     class Lightmaps : public BSP::Element<Lightmap> {
     public:
-        void validateData() override;
+        void validate() override;
         void displayData() const override;
     };
 }

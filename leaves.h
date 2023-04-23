@@ -48,7 +48,9 @@ namespace BSP {
 
     class Leaves : public BSP::Element<Leaf> {
     public:
-        void validateData() override;
+        void load(std::ifstream& file, LumpData& lumpData) override;
+        void updateYAndZ();
+        void validate() override;
         void displayData() const override;
     };
 }

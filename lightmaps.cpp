@@ -24,7 +24,7 @@ namespace BSP {
 		}
 	}
 
-	void Lightmaps::validateData() {
+	void Lightmaps::validate() {
 		for (const auto& lightmap : elements) {
 			for (int i = 0; i < 128; i++) {
 				for (int j = 0; j < 128; j++) {

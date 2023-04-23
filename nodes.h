@@ -39,7 +39,7 @@ namespace BSP {
 
     class Nodes : public BSP::Element<Node> {
     public:
-        void validateData() override;
+        void validate() override;
         void displayData() const override;
     };
 }

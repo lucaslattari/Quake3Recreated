@@ -2,7 +2,7 @@
 #include "utils.h"
 
 namespace BSP {
-    void Nodes::validateData() {
+    void Nodes::validate() {
         for (const auto& node : elements) {
             warning_assert(node.getPlane() >= 0, "Plane is negative.");
 

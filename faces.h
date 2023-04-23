@@ -58,7 +58,7 @@ namespace BSP {
 
     class Faces : public BSP::Element<Face> {
     public:
-        void validateData() override;
+        void validate() override;
         void displayData() const override;
     };
 }

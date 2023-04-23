@@ -17,7 +17,7 @@ namespace BSP {
     // BSP texture class
     class Textures : public BSP::Element<Texture> {
     public:
-        void validateData() override;
+        void validate() override;
         void displayData() const override;
     };
 }
