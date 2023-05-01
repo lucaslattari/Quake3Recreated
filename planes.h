@@ -7,25 +7,25 @@ namespace BSP {
     class Plane {
     public:
         // Accessor (getter) methods
-        const Vector<float, 3>& getNormal() const { return normal; }
+        const Vec3f& getNormal() const { return normal; }
         float getDistanceFromOrigin() const { return distanceFromOrigin; }
 
         // Mutator (setter) methods
-        void setNormal(const Vector<float, 3>& newNormal) { normal = newNormal; }
+        void setNormal(const Vec3f& newNormal) { normal = newNormal; }
         void setDistanceFromOrigin(float newDistanceFromOrigin) { distanceFromOrigin = newDistanceFromOrigin; }
 
         // Default constructor
         Plane() : normal({ 0.0f, 0.0f, 0.0f }), distanceFromOrigin(0.0f) {}
 
         // Constructor with parameters
-        Plane(const Vector<float, 3>& newNormal, float newDistanceFromOrigin)
+        Plane(const Vec3f& newNormal, float newDistanceFromOrigin)
             : normal(newNormal), distanceFromOrigin(newDistanceFromOrigin) {}
 
         ~Plane() = default;
 
     private:
-        Vector<float, 3> normal;          // Plane normal.
-        float distanceFromOrigin;         // The plane distance from origin
+        Vec3f normal;          // Plane normal.
+        float distanceFromOrigin;    // The plane distance from origin
     };
 
     class Planes : public BSP::Element<Plane> {

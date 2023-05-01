@@ -13,7 +13,7 @@ namespace BSP {
     // most 3D modeling software
     void Planes::updateYAndZ() {
         for (auto& plane : elements) {
-            Vector<float, 3> normal = plane.getNormal();
+            Vec3<float> normal = plane.getNormal();
 
             normal.y = plane.getNormal().z;
             normal.z = -plane.getNormal().y;

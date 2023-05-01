@@ -12,7 +12,7 @@ namespace BSP {
 	// most 3D modeling software
 	void Vertices::updateYAndZ() {
 		for (auto& vertex : elements) {
-			Vector<float, 3> newPosition = vertex.getPosition();
+			Vec3<float> newPosition = vertex.getPosition();
 
 			newPosition.y = vertex.getPosition().z; // Access z using () instead of .z
 			newPosition.z = -vertex.getPosition().y; // Access y using () instead of .y
@@ -53,7 +53,7 @@ namespace BSP {
 			warning_assert(vertex.getTextureCoord().y >= -((float)(mapHeight / 64)) && vertex.getTextureCoord().y <= (float)(mapHeight / 64),
 				"Texture coordinate y is out of the allowed range for the map height.");
 
-			Vector<float, 3> copiedNormal = vertex.getNormal().normalized();
+			Vec3f copiedNormal = vertex.getNormal().normalized();
 			warning_assert(copiedNormal.x >= -1.0f && copiedNormal.x <= 1.0f,
 				"Normalized normal x component is out of the range [-1.0, 1.0].");
 

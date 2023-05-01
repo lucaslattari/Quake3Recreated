@@ -9,7 +9,7 @@ namespace BSP {
         ~Lightmap() {};
 
         // The RGB data in a 128x128 image
-        Vector<char, 3> imageBits[128][128];
+        Vec3ui imageBits[128][128];
     };
 
     class Lightmaps : public BSP::Element<Lightmap> {

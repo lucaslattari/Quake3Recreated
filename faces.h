@@ -16,9 +16,9 @@ namespace BSP {
         int getLightmapID() const { return lightmapID; }
         const int* getLightMapCorner() const { return lightMapCorner; }
         const int* getLightMapSize() const { return lightMapSize; }
-        Vector<float, 3> getLightMapPos() const { return lightMapPos; }
-        const Vector<float, 3>* getLightMapVecs() const { return lightMapVecs; }
-        Vector<float, 3> getNormal() const { return normal; }
+        Vec3<float> getLightMapPos() const { return lightMapPos; }
+        const Vec3<float>* getLightMapVecs() const { return lightMapVecs; }
+        Vec3<float> getNormal() const { return normal; }
         const int* getSize() const { return size; }
 
         // Mutator (setter) methods
@@ -50,9 +50,9 @@ namespace BSP {
         int lightmapID;
         int lightMapCorner[2];
         int lightMapSize[2];
-        Vector<float, 3> lightMapPos;
-        Vector<float, 3> lightMapVecs[2];
-        Vector<float, 3> normal;
+        Vec3f lightMapPos;
+        Vec3f lightMapVecs[2];
+        Vec3f normal;
         int size[2];
     };
 
