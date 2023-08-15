@@ -27,9 +27,9 @@ namespace BSP {
             warning_assert(face.getNormal().length() <= 1.0f, "Normal vector magnitude is greater than 1.0f.");
 
             for (int i = 0; i < 2; ++i) {
-                float vecMagnitude = std::sqrt(face.getLightMapVecs()[i].x * face.getLightMapVecs()[i].x +
-                    face.getLightMapVecs()[i].y * face.getLightMapVecs()[i].y +
-                    face.getLightMapVecs()[i].z * face.getLightMapVecs()[i].z);
+                float vecMagnitude = std::sqrt(face.getLightMapVecs()[i].x() * face.getLightMapVecs()[i].x() +
+                    face.getLightMapVecs()[i].y() * face.getLightMapVecs()[i].y() +
+                    face.getLightMapVecs()[i].z() * face.getLightMapVecs()[i].z());
                 warning_assert(vecMagnitude <= 1.0f,
                     "LightMapVecs s and t unit vectors magnitude is greater than 1.0f.");
             }

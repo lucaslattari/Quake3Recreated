@@ -2,227 +2,130 @@
 
 #include <array>
 #include <cmath>
-#include <initializer_list>
 #include <algorithm>
 #include <cassert>
+#include <numeric>
 
 template <typename T, int N>
-class VectorBase {
+class Vector {
 protected:
-    union {
-        std::array<T, N> data;
-        struct {
-            T x, y, z, w;
-        };
-    };
+    std::array<T, N> data;
 
 public:
-    T& operator[](int index) {
-        return data[index];
-    }
+    // Accessors
+    T& operator[](int index) { return data[index]; }
+    const T& operator[](int index) const { return data[index]; }
+    Vector(const Vector& other) = default;
+    Vector& operator=(const Vector& other) = default;
 
-    const T& operator[](int index) const {
-        return data[index];
-    }
-
-    VectorBase() : data{} {}
-
-    VectorBase(const T* values) {
-        std::copy_n(values, N, data.begin());
-    }
-
-    VectorBase(std::initializer_list<T> values) {
+    // Constructors
+    Vector() : data{} {}
+    Vector(const T* values) { std::copy_n(values, N, data.begin()); }
+    Vector(std::initializer_list<T> values) {
         assert(values.size() <= N);
         std::copy(values.begin(), values.end(), data.begin());
     }
 
     // Arithmetic operations
-    VectorBase operator+(const VectorBase& other) const {
-        VectorBase result;
-        for (int i = 0; i < N; i++) {
-            result.data[i] = data[i] + other.data[i];
-        }
+    Vector operator+(const Vector& other) const {
+        Vector result;
+        std::transform(data.begin(), data.end(), other.data.begin(), result.data.begin(), std::plus<T>());
         return result;
     }
 
-    VectorBase& operator+=(const VectorBase& other) {
-        for (int i = 0; i < N; i++) {
-            data[i] += other.data[i];
-        }
-        return *this;
-    }
-
-    VectorBase operator-(const VectorBase& other) const {
-        VectorBase result;
-        for (int i = 0; i < N; i++) {
-            result.data[i] = data[i] - other.data[i];
-        }
+    Vector operator-(const Vector& other) const {
+        Vector result;
+        std::transform(data.begin(), data.end(), other.data.begin(), result.data.begin(), std::minus<T>());
         return result;
     }
 
-    VectorBase operator*(T scalar) const {
-        VectorBase result;
-        for (int i = 0; i < N; i++) {
-            result.data[i] = data[i] * scalar;
-        }
+    Vector operator*(T scalar) const {
+        Vector result;
+        std::transform(data.begin(), data.end(), result.data.begin(), [scalar](T val) { return val * scalar; });
         return result;
     }
 
     // Dot product
-    T dot(const VectorBase& other) const {
-        T result = 0;
-        for (int i = 0; i < N; i++) {
-            result += data[i] * other.data[i];
-        }
-        return result;
+    T dot(const Vector& other) const {
+        return std::inner_product(data.begin(), data.end(), other.data.begin(), T(0));
     }
 
     // Length and normalization
     T length() const {
-        T sum = 0;
-        for (int i = 0; i < N; i++) {
-            sum += data[i] * data[i];
-        }
-        return sqrt(sum);
+        return std::sqrt(std::inner_product(data.begin(), data.end(), data.begin(), T(0)));
     }
 
-    void normalize() {
+    Vector normalize() const {
         T len = length();
-        for (int i = 0; i < N; i++) {
-            data[i] /= len;
-        }
-    }
-
-    VectorBase normalized() const {
-        VectorBase result = static_cast<const VectorBase&>(*this);
-        result.normalize();
+        Vector result;
+        std::transform(data.begin(), data.end(), result.data.begin(), [len](T value) { return value / len; });
         return result;
     }
 };
 
-template<typename T, int N, typename Derived>
-class Vector : public VectorBase<T, N> {
-public:
-    using VectorBase<T, N>::VectorBase;
-
-    // Cast to derived class
-    operator const Derived& () const {
-        return static_cast<const Derived&>(*this);
-    }
-
-    operator Derived& () {
-        return static_cast<Derived&>(*this);
-    }
-
-    // Arithmetic operations
-    Derived operator+(const Derived& other) const {
-        Derived result;
-        for (int i = 0; i < N; i++) {
-            result[i] = (*this)[i] + other[i];
-        }
-        return result;
-    }
-
-    Derived operator-(const Derived& other) const {
-        Derived result;
-        for (int i = 0; i < N; i++) {
-            result[i] = (*this)[i] - other[i];
-        }
-        return result;
-    }
-
-    Derived operator*(T scalar) const {
-        Derived result;
-        for (int i = 0; i < N; i++) {
-            result[i] = (*this)[i] * scalar;
-        }
-        return result;
-    }
-
-    // Dot product
-    T dot(const Derived& other) const {
-        T result = 0;
-        for (int i = 0; i < N; i++) {
-            result += (*this)[i] * other[i];
-        }
-        return result;
-    }
-
-    // Length and normalization
-    T length() const {
-        T sum = 0;
-        for (int i = 0; i < N; i++) {
-            sum += (*this)[i] * (*this)[i];
-        }
-        return sqrt(sum);
-    }
-
-    void normalize() {
-        T len = length();
-        for (int i = 0; i < N; i++) {
-            (*this)[i] /= len;
-        }
-    }
-
-    Derived normalized() const {
-        Derived result = static_cast<const Derived&>(*this);
-        result.normalize();
-        return result;
-    }
-};
-
-// Specializations for common 2D vector types
+// Specializations for common 2D, 3D, and 4D vector types
 template<typename T>
-class Vec2 : public Vector<T, 2, Vec2<T>> {
+class Vec2 : public Vector<T, 2> {
 public:
-    Vec2() : Vector<T, 2, Vec2<T>>() {}
+    Vec2() : Vector<T, 2>() {}
 
-    Vec2(T x, T y) : Vector<T, 2, Vec2<T>>({ x, y }) {}
+    Vec2(T x, T y) : Vector<T, 2>({ x, y }) {}
 
-    operator Vector<T, 2, Vec2<T>>() const {
-        return *this;
-    }
+    T& x() { return this->data[0]; }
+    const T& x() const { return this->data[0]; }
+
+    T& y() { return this->data[1]; }
+    const T& y() const { return this->data[1]; }
+
+    Vec2(const Vector<T, 2>& other) : Vector<T, 2>(other) {}
 };
 
 template<typename T>
-class Vec3 : public Vector<T, 3, Vec3<T>> {
+class Vec3 : public Vector<T, 3> {
 public:
-    Vec3() : Vector<T, 3, Vec3<T>>() {}
+    Vec3() : Vector<T, 3>() {}
+    Vec3(T x, T y, T z) : Vector<T, 3>({ x, y, z }) {}
 
-    Vec3(T x, T y, T z) : Vector<T, 3, Vec3<T>>({ x, y, z }) {}
+    T& x() { return this->data[0]; }
+    const T& x() const { return this->data[0]; }
+
+    T& y() { return this->data[1]; }
+    const T& y() const { return this->data[1]; }
+
+    T& z() { return this->data[2]; }
+    const T& z() const { return this->data[2]; }
+
+    Vec3(const Vector<T, 3>& other) : Vector<T, 3>(other) {}
 
     Vec3 cross(const Vec3& other) const {
-        Vec3 result;
-        result[0] = (*this)[1] * other[2] - (*this)[2] * other[1];
-        result[1] = (*this)[2] * other[0] - (*this)[0] * other[2];
-        result[2] = (*this)[0] * other[1] - (*this)[1] * other[0];
-        return result;
-    }
-
-    operator Vector<T, 3, Vec3<T>>() const {
-        return *this;
+        return Vec3{
+            this->data[1] * other.data[2] - this->data[2] * other.data[1],
+            this->data[2] * other.data[0] - this->data[0] * other.data[2],
+            this->data[0] * other.data[1] - this->data[1] * other.data[0]
+        };
     }
 };
 
 template<typename T>
-class Vec4 : public Vector<T, 4, Vec4<T>> {
+class Vec4 : public Vector<T, 4> {
 public:
-    Vec4() : Vector<T, 4, Vec4<T>>() {}
+    Vec4() : Vector<T, 4>() {}
 
-    Vec4(T x, T y, T z, T w) {
-        this->data[0] = x;
-        this->data[1] = y;
-        this->data[2] = z;
-        this->data[3] = w;
-    }
+    Vec4(T x, T y, T z, T w) : Vector<T, 4>({ x, y, z, w }) {}
 
-    operator Vector<T, 4, Vec4<T>>() const {
-        return *this;
-    }
-};
+    T& x() { return this->data[0]; }
+    const T& x() const { return this->data[0]; }
 
-template<typename T, int N>
-class SimpleVector : public Vector<T, N, SimpleVector<T, N>> {
+    T& y() { return this->data[1]; }
+    const T& y() const { return this->data[1]; }
+
+    T& z() { return this->data[2]; }
+    const T& z() const { return this->data[2]; }
+
+    T& w() { return this->data[3]; }
+    const T& w() const { return this->data[3]; }
+
+    Vec4(const Vector<T, 4>& other) : Vector<T, 4>(other) {}
 };
 
 // Common typedefs for vector types

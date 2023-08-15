@@ -11,12 +11,12 @@ namespace BSP {
     void Leaves::updateYAndZ() {
         for (auto& leaf : elements) {
             // Swap the min y and z values, then negate the new Z
-            int temp = leaf.getMin().y;
-            leaf.setMin({ leaf.getMin().x, leaf.getMin().z, -temp });
+            int temp = leaf.getMin().y();
+            leaf.setMin({ leaf.getMin().x(), leaf.getMin().z(), -temp});
 
             // Swap the max y and z values, then negate the new Z
-            temp = leaf.getMax().y;
-            leaf.setMax({ leaf.getMax().x, leaf.getMax().z, -temp });
+            temp = leaf.getMax().y();
+            leaf.setMax({ leaf.getMax().x(), leaf.getMax().z(), -temp});
         }
     }
 

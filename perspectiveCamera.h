@@ -1,13 +1,25 @@
 #pragma once
 
 #include "camera.h"
+#include <cmath>
 
 class PerspectiveCamera : public Camera {
 public:
     PerspectiveCamera(float fov, float aspectRatio, float near, float far);
 
     void updateViewMatrix() override;
-    Matrix<float, 4, 4> getViewMatrix() const override;
+    Mat4<float> getViewMatrix() const override;
+
+    void updateProjectionMatrix() override;
+    Mat4<float> getProjectionMatrix() const override;
 
     // Perspective-specific attributes and methods can be included here.
+
+private:
+    float fov;
+    float aspectRatio;
+    float near;
+    float far;
+    Mat4<float> viewMatrix;
+    Mat4<float> projectionMatrix;
 };

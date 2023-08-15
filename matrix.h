@@ -1,32 +1,43 @@
 #pragma once
 
 #include "vector.h"
+#include <array>
 #include <cassert>
+#include <cmath>
+#include <stdexcept>
 
 template<typename T, int M, int N>
 class Matrix {
 private:
-    std::array<Vector<T, N, SimpleVector<T, N>>, M> data;
+    std::array<Vector<T, N>, M> data;
 
 public:
-    Matrix() : data{} {}
-
-    // Construct from row vectors
-    Matrix(std::initializer_list<Vector<T, N, SimpleVector<T, N>>> values) {
-        assert(values.size() == M);
-        int i = 0;
-        for (const auto& row : values) {
-            data[i] = row;
-            i++;
+    Matrix() { //identity matrix
+        for (int i = 0; i < M && i < N; i++) {
+            data[i][i] = 1;
         }
     }
 
-    // Accessors
+    // Construct from row vectors
+    Matrix(std::initializer_list<Vector<T, N>> values) {
+        if (values.size() != M) {
+            throw std::length_error("Invalid number of rows");
+        }
+        std::copy(values.begin(), values.end(), data.begin());
+    }
+
+    // Accessors with boundary check
     T& operator()(int i, int j) {
+        if (i < 0 || i >= M || j < 0 || j >= N) {
+            throw std::out_of_range("Index out of range");
+        }
         return data[i][j];
     }
 
     const T& operator()(int i, int j) const {
+        if (i < 0 || i >= M || j < 0 || j >= N) {
+            throw std::out_of_range("Index out of range");
+        }
         return data[i][j];
     }
 
@@ -57,8 +68,8 @@ public:
     }
 
     // Matrix-vector multiplication
-    Vector<T, M, SimpleVector<T, M>> operator*(const Vector<T, N, SimpleVector<T, N>>& vec) const {
-        Vector<T, M, SimpleVector<T, M>> result;
+    Vector<T, M> operator*(const Vector<T, N>& vec) const {
+        Vector<T, M> result;
         for (int i = 0; i < M; i++) {
             T sum = 0;
             for (int j = 0; j < N; j++) {
@@ -67,5 +78,38 @@ public:
             result[i] = sum;
         }
         return result;
+    }
+};
+
+template<typename T>
+class Mat4 : public Matrix<T, 4, 4> {
+public:
+    // Explicitly default the constructor to inherit the one from Matrix
+    Mat4() = default;
+
+    Mat4(std::initializer_list<T> values) {
+        if (values.size() != 16) {
+            throw std::length_error("Invalid number of elements");
+        }
+        auto it = values.begin();
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                (*this)(i, j) = *it++;
+            }
+        }
+    }
+
+    static Mat4<T> rotate(float angle, const Vec3<T>& axis) {
+        Vec3<T> u = axis.normalize();
+        float s = std::sin(angle);
+        float c = std::cos(angle);
+        float oc = 1.0f - c;
+
+        return Mat4<T>{
+            u.x()* u.x()* oc + c, u.x()* u.y()* oc - u.z() * s, u.x()* u.z()* oc + u.y() * s, 0.0f,
+                u.y()* u.x()* oc + u.z() * s, u.y()* u.y()* oc + c, u.y()* u.z()* oc - u.x() * s, 0.0f,
+                u.z()* u.x()* oc - u.y() * s, u.z()* u.y()* oc + u.x() * s, u.z()* u.z()* oc + c, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f
+        };
     }
 };

@@ -3,7 +3,7 @@
 #include "vector.h"
 #include "matrix.h"
 
-/*class Camera {
+class Camera {
 public:
     virtual ~Camera() = default;
 
@@ -27,8 +27,8 @@ public:
 
 protected:
     // Protected attributes for position and orientation
-    Vec3f position;
-    Vec3f forward;
-    Vec3f up;
-    Vec3f right;
-};*/
+    Vec3<float> position;
+    Vec3<float> forward;
+    Vec3<float> up;
+    Vec3<float> right;
+};

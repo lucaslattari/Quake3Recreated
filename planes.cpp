@@ -15,8 +15,8 @@ namespace BSP {
         for (auto& plane : elements) {
             Vec3<float> normal = plane.getNormal();
 
-            normal.y = plane.getNormal().z;
-            normal.z = -plane.getNormal().y;
+            normal.y() = plane.getNormal().z();
+            normal.z() = -plane.getNormal().y();
 
             plane.setNormal(normal);
         }
