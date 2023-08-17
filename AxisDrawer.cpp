@@ -1,35 +1,42 @@
 #pragma once
 
-#include "drawAxis.h"
+#include "AxisDrawer.h"
 
 AxisDrawer::AxisDrawer() {
-    initShader();
-    initBuffers();
+    //initShader();
+    //initBuffers();
 }
 
 AxisDrawer::~AxisDrawer() {
-    glDeleteProgram(shaderProgram);
+    /*glDeleteProgram(shaderProgram);
     glDeleteVertexArrays(1, &axis_vao);
     glDeleteBuffers(1, &axis_vbo);
-    glDeleteBuffers(1, &color_vbo);
+    glDeleteBuffers(1, &color_vbo);*/
 }
 
-void AxisDrawer::draw() {
+void AxisDrawer::draw(const Mat4<float>& viewMatrix, const Mat4<float>& projectionMatrix, GLuint shaderProgram) {
     glUseProgram(shaderProgram); //loads the program containing the two compiled shaders into the OpenGL pipeline stages
+    GLint viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+    GLint projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
+
+    glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &viewMatrix(0, 0));
+    glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &projectionMatrix(0, 0));
     glBindVertexArray(axis_vao);
     glDrawArrays(GL_LINES, 0, 6);
     glBindVertexArray(0);
 }
 
-void AxisDrawer::initShader() {
+/*void AxisDrawer::initShader() {
     // Vertex shader source code
     const char* vertexShaderSource = "#version 330 core\n"
         "layout (location = 0) in vec3 aPos;\n"
         "layout (location = 1) in vec3 aColor;\n"
+        "uniform mat4 viewMatrix;\n"
+        "uniform mat4 projectionMatrix;\n"
         "out vec3 color;\n"
         "void main()\n"
         "{\n"
-        "   gl_Position = vec4(aPos, 1.0);\n"
+        "   gl_Position = projectionMatrix * viewMatrix * vec4(aPos, 1.0);\n"
         "   color = aColor;\n"
         "}\0";
 
@@ -55,8 +62,8 @@ void AxisDrawer::initShader() {
     * 1: number of strings in the shader source code
     * vertexShaderSource: an array of pointers to strings containing the source code
     */
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); 
-    glCompileShader(vertexShader);
+    //glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); 
+    //glCompileShader(vertexShader);
     
     /*
     * glGetshaderiv: retrieves the compile status of the specified shader 
@@ -66,7 +73,7 @@ void AxisDrawer::initShader() {
     * value (usually GL_TRUE), otherwise, it will be set to zero (usually GL_FALSE).
     *
     */
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    /*glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
     //retrieves the error log. 512 is the max length of log message stored in infolog
        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
@@ -93,6 +100,9 @@ void AxisDrawer::initShader() {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
         std::cout << "Shader program linking failed: " << infoLog << std::endl;
     }
+
+    viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+    projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
 
     // Clean up shader objects
     glDeleteShader(vertexShader);
@@ -135,7 +145,7 @@ void AxisDrawer::initBuffers() {
     * 0: offset between consecutive vertex attributes (strides)
     * (void*)0: byte offset of first vertex attribute
     */
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); //associate attribute with buffer
+    /*glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); //associate attribute with buffer
     glEnableVertexAttribArray(0); //enable the vertex attribute array
 
     // Generate and bind a vertex buffer object (VBO) for the axis colors
@@ -155,4 +165,4 @@ void AxisDrawer::initBuffers() {
     // Unbind the VAO and VBO
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
+}*/

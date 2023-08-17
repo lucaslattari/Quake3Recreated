@@ -19,11 +19,11 @@ public:
     Vec3<float> getForward() const;
     Vec3<float> getUp() const;
     Vec3<float> getRight() const;
-    void setOrientation(const Vec3<float>& newForward, const Vec3<float>& newUp);
 
-    // Common methods for translation and rotation
+    // Common methods
     void translate(const Vec3<float>& translation);
     void rotate(float angle, const Vec3<float>& axis);
+    void lookAt(const Vec3<float>& target);
 
 protected:
     // Protected attributes for position and orientation

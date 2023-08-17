@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cassert>
 #include <numeric>
+#include <ostream>
 
 template <typename T, int N>
 class Vector {
@@ -62,6 +63,17 @@ public:
         return result;
     }
 };
+
+template <typename T, int N>
+std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec) {
+    os << "(";
+    for (int i = 0; i < N; ++i) {
+        os << vec[i];
+        if (i < N - 1) os << ", ";
+    }
+    os << ")";
+    return os;
+}
 
 // Specializations for common 2D, 3D, and 4D vector types
 template<typename T>

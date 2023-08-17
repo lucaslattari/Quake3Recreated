@@ -1,97 +1,49 @@
-#include <iostream>
-#include <sstream> // Include stringstream
-#include <iomanip> // Include setprecision
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <cmath>
 
-#include "drawAxis.h"
+#include "GL_Utils.h"
+#include "utils.h"
+
+#include "EventSystem.h"
+#include "PerspectiveCamera.h"
+#include "CameraController.h"
+#include "BasicShapes.h"
+#include "shaders.h"
 #include "bsp.h"
 
 using namespace std;
 
-void printFPS(GLFWwindow* window) {
-    // Declare static variables to store the previous time and frame count
-    static double previousTime = glfwGetTime();
-    static int frameCount = 0;
+int WINDOW_WIDTH = 1280.0f;
+int WINDOW_HEIGHT = 720.0f;
 
-    // Increment the frame count
-    frameCount++;
+PerspectiveCamera setupCamera(){
+    PerspectiveCamera camera(60, WINDOW_WIDTH / WINDOW_HEIGHT, 0.1f, 1000.0f);
+    Vec3f cameraPosition = Vec3f(0.0f, 0.0f, 3.0f); // Posição da câmera
+    camera.setPosition(cameraPosition);
 
-    // Get the current time
-    double currentTime = glfwGetTime();
+    camera.lookAt(Vec3f(0.0f, 0.0f, 0.0f));
 
-    // Calculate the elapsed time since the previous measurement
-    double elapsedTime = currentTime - previousTime;
+    camera.updateProjectionMatrix();
 
-    // Update and print FPS every second (1.0)
-    if (elapsedTime >= 1.0) {
-        double fps = static_cast<double>(frameCount) / elapsedTime;
-
-        // Create a string stream to format the FPS value
-        std::stringstream titleStream;
-        titleStream << std::fixed << std::setprecision(2) << "CEREBRO ENGINE - FPS: " << fps;
-
-        // Set the window title with the new FPS value
-        glfwSetWindowTitle(window, titleStream.str().c_str());
-
-        // Reset the frame count and update the previous time
-        frameCount = 0;
-        previousTime = currentTime;
-    }
+    return camera;
 }
 
-//called by GLFW whenever an error occurs within the library
-void errorCallback(int error, const char* description) {
-    cout << "GLFW Error (" << error << "): " << description << endl;
-}
+void renderFrame(PerspectiveCamera& camera, GLuint shaderProgram) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
-    }
-}
+    camera.updateViewMatrix();
+    camera.updateProjectionMatrix();
 
-//called whenever the window is resized
-void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
+    Mat4<float> modelMatrix = Mat4<float>{}; // Use identity matrix or set your desired model matrix here
+    Mat4<float> viewMatrix = camera.getViewMatrix().transpose();
+    Mat4<float> projectionMatrix = camera.getProjectionMatrix().transpose();
 
-bool initGLFW() {
-    if (!glfwInit()) {
-        cout << "Failed to initialize GLFW." << endl;
-        return false;
-    }
+    glUseProgram(shaderProgram);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, modelMatrix.getData());
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, viewMatrix.getData());
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, projectionMatrix.getData());
 
-    glfwSetErrorCallback(errorCallback);
-    return true;
-}
-
-void setWindowHints() {
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-}
-
-bool initGLAD() {
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        cout << "Failed to initialize GLAD." << endl;
-        return false;
-    }
-    return true;
-}
-
-void setupOpenGL() {
-    glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // Set the background color
-    glEnable(GL_DEPTH_TEST); // Enable depth testing (for 3D rendering)
-}
-
-void renderFrame(AxisDrawer& axisDrawer) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the color and depth buffers
-
-    // Add rendering or updating code here
-
-    axisDrawer.draw(); // Call the draw method of AxisDrawer
+    drawAxes(shaderProgram);
+    drawTriangle(shaderProgram);
 }
 
 int main(int argc, char* argv[]) {
@@ -107,7 +59,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    GLFWwindow* window = glfwCreateWindow(640, 480, "CEREBRO ENGINE", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "CEREBRO ENGINE", NULL, NULL);
     if (window == NULL) {
         cout << "Failed to create GLFW window." << endl;
         glfwTerminate();
@@ -117,9 +69,6 @@ int main(int argc, char* argv[]) {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
-    // Register the key callback function
-    glfwSetKeyCallback(window, keyCallback);
-
     if (!initGLAD()) {
         glfwDestroyWindow(window);
         glfwTerminate();
@@ -127,11 +76,29 @@ int main(int argc, char* argv[]) {
     }
 
     setupOpenGL();
+    GLuint shaderProgram = initShader(); // Função para inicializar o shader
 
-    AxisDrawer axisDrawer; // object that draw Axis
+    PerspectiveCamera camera = setupCamera();
+    CameraController cameraController(camera, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    EventSystem eventSystem;
+    eventSystem.addListener(EventType::KeyPress, std::bind(&CameraController::onKeyPress, &cameraController, std::placeholders::_1));
+    eventSystem.addListener(EventType::MouseMove, std::bind(&CameraController::onMouseMove, &cameraController, std::placeholders::_1));
+
+    glfwSetWindowUserPointer(window, &eventSystem);
+    glfwSetKeyCallback(window, keyCallback);
+    glfwSetCursorPosCallback(window, mouseCallback);
+
+    // Adicionar um novo ouvinte para a tecla ESC ou 'q'
+    eventSystem.addListener(EventType::KeyPress, [&window](const Event& event) {
+        const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
+        if (keyEvent.action == GLFW_PRESS && (keyEvent.key == GLFW_KEY_ESCAPE || keyEvent.key == GLFW_KEY_Q)) {
+            glfwSetWindowShouldClose(window, true);
+        }
+    });
 
     while (!glfwWindowShouldClose(window)) {
-        renderFrame(axisDrawer);
+        renderFrame(camera, shaderProgram);
 
         printFPS(window); // Calculate and print the FPS in the window title
 

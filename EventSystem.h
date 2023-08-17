@@ -1,44 +1,43 @@
 #pragma once
 
-#include <functional> // Includes std::function, allowing to store callable objects
+#include <functional>
 #include <map>
 #include <vector>
+#include <GLFW/glfw3.h>
 
-// Enum for different types of events that you may want to support.
 enum class EventType {
     KeyPress,
     MouseMove,
-    // ... other event types
 };
 
-// Class that represents a specific event.
 class Event {
 public:
     EventType type;
-    // ... other specific properties of the event (e.g., key pressed, mouse position, etc.)
 };
 
-// Function type for event listeners.
-using EventListener = std::function<void(const Event&)>; // Using std::function to store a callable object
+class KeyEvent : public Event {
+public:
+    int key, scancode, action, mods;
+    KeyEvent(int key, int scancode, int action, int mods);
+};
 
-// Class to manage events.
+class MouseMoveEvent : public Event {
+public:
+    double xpos, ypos;
+    MouseMoveEvent(double xpos, double ypos);
+};
+
+using EventListener = std::function<void(const Event&)>;
+
 class EventSystem {
 private:
-    std::map<EventType, std::vector<EventListener>> listeners; // Mapping event types to their listeners
+    std::map<EventType, std::vector<EventListener>> listeners;
 
 public:
-    // Add a listener for a specific event type.
-    void addListener(EventType type, EventListener listener) {
-        listeners[type].push_back(listener);
-    }
-
-    // todo: Remove a listener for a specific event type.
-
-    // Trigger an event, notifying all registered listeners for that event type.
-    void fireEvent(const Event& event) {
-        auto& listenersForEvent = listeners[event.type];
-        for (const auto& listener : listenersForEvent) {
-            listener(event);
-        }
-    }
+    void addListener(EventType type, EventListener listener);
+    void fireEvent(const Event& event);
 };
+
+// Declaração dos callbacks
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void mouseCallback(GLFWwindow* window, double xpos, double ypos);

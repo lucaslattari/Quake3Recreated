@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cmath>
 #include <stdexcept>
+#include <iostream>
 
 template<typename T, int M, int N>
 class Matrix {
@@ -39,6 +40,10 @@ public:
             throw std::out_of_range("Index out of range");
         }
         return data[i][j];
+    }
+
+    const T* getData() const {
+        return reinterpret_cast<const T*>(data.data());
     }
 
     // Identity matrix
@@ -79,6 +84,19 @@ public:
         }
         return result;
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const Matrix<T, M, N>& matrix) {
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < N; j++) {
+                os << matrix(i, j);
+                if (j < N - 1) {
+                    os << " ";
+                }
+            }
+            os << std::endl;
+        }
+        return os;
+    }
 };
 
 template<typename T>
@@ -99,6 +117,14 @@ public:
         }
     }
 
+    Mat4(const Matrix<T, 4, 4>& matrix) {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                (*this)(i, j) = matrix(i, j);
+            }
+        }
+    }
+
     static Mat4<T> rotate(float angle, const Vec3<T>& axis) {
         Vec3<T> u = axis.normalize();
         float s = std::sin(angle);
@@ -112,4 +138,29 @@ public:
                 0.0f, 0.0f, 0.0f, 1.0f
         };
     }
+
+    Mat4<T> transpose() const {
+        Mat4<T> result;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                result(i, j) = (*this)(j, i);
+            }
+        }
+        return result;
+    }
 };
+
+// Definição da sobrecarga do operador << fora da classe Mat4
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Mat4<T>& matrix) {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            os << matrix(i, j);
+            if (j < 3) {
+                os << " ";
+            }
+        }
+        os << std::endl;
+    }
+    return os;
+}

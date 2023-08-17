@@ -22,12 +22,6 @@ void Camera::setPosition(const Vec3<float>& newPosition) {
     position = newPosition;
 }
 
-void Camera::setOrientation(const Vec3<float>& newForward, const Vec3<float>& newUp) {
-    forward = newForward.normalize();
-    up = newUp.normalize();
-    right = forward.cross(up).normalize();
-}
-
 // Translation and rotation
 void Camera::translate(const Vec3<float>& translation) {
     position = position + translation;
@@ -45,4 +39,21 @@ void Camera::rotate(float angle, const Vec3<float>& axis) {
 
     // Update the right vector
     right = forward.cross(up).normalize();
+}
+
+void Camera::lookAt(const Vec3<float>& target) {
+    // Calcular o novo vetor direcional (forward)
+    forward = (target - position).normalize();
+
+    // Recalcular o vetor para cima (up)
+    up = Vec3f(0.0f, 1.0f, 0.0f);
+
+    // Calcular o vetor à direita (right)
+    right = forward.cross(up).normalize();
+
+    // Normalizar o vetor para cima (up)
+    up = right.cross(forward).normalize(); // note a ordem invertida para manter a mão direita
+
+    // (Opcional) Atualizar a matriz de visualização se necessário
+    updateViewMatrix();
 }
