@@ -4,6 +4,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
+
+#include "GL_Utils.h"
 
 #include "BSPelement.h"
 #include "vertices.h"
@@ -36,6 +39,11 @@ namespace BSP {
 
         bool load(const std::string& filename);
         void loadLumps(std::ifstream& file);
+
+        void initializeFaces();
+        
+        void drawLevel(const Vec3<float>& vPos);
+
     private:
         Header header;
         LumpData lumps[static_cast<int>(LUMPS::MAXLUMPS)];
@@ -54,7 +62,10 @@ namespace BSP {
         IndexedData             leafFaces;
         IndexedData             leafBrushes;
 
+        std::map<int, GLuint> m_VAOs;
+
         void displayHeaderData(Header& header);
         void displayLumpData(LumpData(&lumps)[static_cast<int>(LUMPS::MAXLUMPS)]);
+        void drawFace(int faceIndex);
     };
 }

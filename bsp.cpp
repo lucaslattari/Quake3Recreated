@@ -17,8 +17,12 @@ namespace BSP {
 
 	Loader::~Loader()
 	{
-
+		for (const auto& pair : m_VAOs) {
+			GLuint VAO = pair.second;
+			glDeleteVertexArrays(1, &VAO);
+		}
 	}
+
 
 	bool Loader::load(const std::string& filename)
 	{
@@ -52,6 +56,9 @@ namespace BSP {
 				  static_cast<int>(LUMPS::MAXLUMPS) * sizeof(LumpData));
 
 		loadLumps(file);
+
+		// Inicialize as faces, criando VBOs, VAOs e EBOs
+		initializeFaces();
 	
 		file.close();
 
@@ -118,5 +125,79 @@ namespace BSP {
 			std::cout << "Offset: " << lumps[i].offset << std::endl;
 			std::cout << "Length: " << lumps[i].length << std::endl;
 		}
+	}
+
+	void Loader::drawLevel(const Vec3<float>& vPos) {
+		// For each face
+		for (int faceIndex = 0; faceIndex < faces.size(); faceIndex++) {
+			if (faces.getData()[faceIndex].getType() != FaceType::FACE_POLYGON)
+				continue;
+
+			drawFace(faceIndex);
+		}
+	}
+
+	void Loader::initializeFaces() {
+		// Percorra todas as faces
+		for (int faceIndex = 0; faceIndex < faces.size(); faceIndex++) {
+
+			const BSP::Face& face = faces.getData()[faceIndex];
+
+			if (face.getType() == BSP::FACE_POLYGON) {
+				int start = face.getStartVertIndex();
+				int count = face.getNumOfVerts();
+
+				std::vector<Vertex> verticesForThisFace(vertices.getData().begin() + start, vertices.getData().begin() + start + count);
+
+				std::vector<int> indices = this->indices.getValues();
+				std::vector<float> vertexData;
+				for (const auto& vertex : verticesForThisFace) {
+					vertexData.push_back(vertex.getPosition().x());
+					vertexData.push_back(vertex.getPosition().y());
+					vertexData.push_back(vertex.getPosition().z());
+
+					// Adicione outros atributos, como coordenadas de textura, se desejar
+					// Adicione a cor, assumindo que está armazenada como RGBA (0-255)
+					for (int i = 0; i < 4; i++) {
+						vertexData.push_back(static_cast<float>(vertex.getColor()[i]) / 255.0f);
+					}
+				}
+
+				GLuint VAO, VBO, EBO;
+				glGenVertexArrays(1, &VAO);
+				glGenBuffers(1, &VBO);
+				glGenBuffers(1, &EBO);
+
+				glBindVertexArray(VAO);
+				glBindBuffer(GL_ARRAY_BUFFER, VBO);
+				glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_STATIC_DRAW);
+
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+				// Configurar atributos do vértice para a posição
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+				glEnableVertexAttribArray(0);
+
+				// Configurar atributos do vértice para a cor
+				glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+				glEnableVertexAttribArray(1);
+
+				// Desvincular o VBO e VAO (opcional, mas uma boa prática)
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				glBindVertexArray(0);
+
+				m_VAOs[faceIndex] = VAO;
+			}
+		}
+	}
+
+	void Loader::drawFace(int faceIndex) {
+		if (faces.getData()[faceIndex].getType() != FaceType::FACE_POLYGON)
+			return;
+
+		glBindVertexArray(m_VAOs[faceIndex]); // Ligar VAO
+		glDrawElements(GL_TRIANGLES, this->indices.getValues().size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0); // Desligar VAO
 	}
 }

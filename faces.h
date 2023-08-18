@@ -3,6 +3,13 @@
 #include "BSPElement.h"
 
 namespace BSP {
+    enum FaceType {
+        FACE_POLYGON = 1,
+        FACE_PATCH = 2,
+        FACE_MESH = 3,
+        FACE_BBOARD = 4
+    };
+
     class Face {
     public:
         // Accessor (getter) methods

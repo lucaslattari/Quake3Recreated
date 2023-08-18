@@ -42,18 +42,10 @@ void Camera::rotate(float angle, const Vec3<float>& axis) {
 }
 
 void Camera::lookAt(const Vec3<float>& target) {
-    // Calcular o novo vetor direcional (forward)
     forward = (target - position).normalize();
-
-    // Recalcular o vetor para cima (up)
     up = Vec3f(0.0f, 1.0f, 0.0f);
-
-    // Calcular o vetor à direita (right)
     right = forward.cross(up).normalize();
+    up = right.cross(forward).normalize();
 
-    // Normalizar o vetor para cima (up)
-    up = right.cross(forward).normalize(); // note a ordem invertida para manter a mão direita
-
-    // (Opcional) Atualizar a matriz de visualização se necessário
     updateViewMatrix();
 }

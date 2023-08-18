@@ -28,6 +28,9 @@ namespace BSP {
 
         virtual void displayData() const = 0;
         virtual void validate() = 0;
+
+        size_t size() const { return elements.size(); }
+        const std::vector<T>& getData() const { return elements; }
     protected:
         std::vector<T> elements;
     };
