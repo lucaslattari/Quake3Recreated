@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <vector>
+#include <iostream>
 
 class IndexedData {
 private:
@@ -25,8 +26,10 @@ public:
     // Setter methods
     void setValues(const std::vector<int>& newValues) { values = newValues; }
 
+    friend std::ostream& operator<<(std::ostream& os, const IndexedData& indexedData);
+
     // Load method
-    void load(std::ifstream& file, int lumpOffset, int lumpLength) {
+    void load(std::ifstream& file, int lumpLength, int lumpOffset) {
 
         // Seek to the position in the file that stores the index information
         file.seekg(lumpOffset, std::ios::beg);
@@ -38,5 +41,18 @@ public:
 
         // Read in all the index information
         file.read(reinterpret_cast<char*>(values.data()), lumpLength);
+
+        //std::cout << values.size() << std::endl;
+        //std::cin.get();
+    }
+
+    void displayData() const {
+        int i = 0;
+        std::cout << "Indexed Data: [ ";
+        for (const auto& value : values) {
+            std::cout << i << ": " << value << " ";
+            i++;
+        }
+        std::cout << "]" << std::endl;
     }
 };

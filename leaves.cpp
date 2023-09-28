@@ -33,9 +33,25 @@ namespace BSP {
     }
 
     void Leaves::displayData() const {
+        std::cout << "Displaying Leaf Data:" << std::endl;
+        int count = 1;
         for (const auto& leaf : elements) {
-            // Display leaf data using getter methods
-            // Add your display code here
+            std::cout << "Leaf " << count << ": " << std::endl;
+            std::cout << "  Cluster: " << leaf.getCluster() << std::endl;
+            std::cout << "  Area: " << leaf.getArea() << std::endl;
+
+            const auto& min = leaf.getMin();
+            std::cout << "  Min: [" << min[0] << ", " << min[1] << ", " << min[2] << "]" << std::endl;
+
+            const auto& max = leaf.getMax();
+            std::cout << "  Max: [" << max[0] << ", " << max[1] << ", " << max[2] << "]" << std::endl;
+
+            std::cout << "  LeafFace: " << leaf.getLeafFace() << std::endl;
+            std::cout << "  NumOfLeafFaces: " << leaf.getNumOfLeafFaces() << std::endl;
+            std::cout << "  LeafBrush: " << leaf.getLeafBrush() << std::endl;
+            std::cout << "  NumOfLeafBrushes: " << leaf.getNumOfLeafBrushes() << std::endl;
+
+            count++;
         }
     }
 }

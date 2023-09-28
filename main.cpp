@@ -12,8 +12,8 @@
 
 using namespace std;
 
-int WINDOW_WIDTH = 1280.0f;
-int WINDOW_HEIGHT = 720.0f;
+int WINDOW_WIDTH = 1280;
+int WINDOW_HEIGHT = 720;
 
 // Function to set up the camera
 PerspectiveCamera setupCamera() {
@@ -90,6 +90,21 @@ int main(int argc, char* argv[]) {
     // Add listeners for key press and mouse move events
     eventSystem.addListener(EventType::KeyPress, std::bind(&CameraController::onKeyPress, &cameraController, std::placeholders::_1));
     eventSystem.addListener(EventType::MouseMove, std::bind(&CameraController::onMouseMove, &cameraController, std::placeholders::_1));
+
+    // Wireframe mode
+    bool wireframeMode = false;
+    eventSystem.addListener(EventType::KeyPress, [&wireframeMode](const Event& event) {
+        const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
+        if (keyEvent.action == GLFW_PRESS && keyEvent.key == GLFW_KEY_1) {
+            wireframeMode = !wireframeMode;  // Toggle wireframe mode
+            if (wireframeMode) {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            }
+            else {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            }
+        }
+        });
 
     // Set callbacks for GLFW window
     glfwSetWindowUserPointer(window, &eventSystem);

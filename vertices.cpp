@@ -1,6 +1,16 @@
 #include "vertices.h"
 
 namespace BSP {
+	std::ostream& operator<<(std::ostream& os, const Vertex& vertex) {
+		os << "Vertex Data: " << std::endl;
+		os << "  Position: (" << vertex.getPosition().x() << ", " << vertex.getPosition().y() << ", " << vertex.getPosition().z() << ")" << std::endl;
+		os << "  Texture Coord: (" << vertex.getTextureCoord().x() << ", " << vertex.getTextureCoord().y() << ")" << std::endl;
+		os << "  Lightmap Coord: (" << vertex.getLightmapCoord().x() << ", " << vertex.getLightmapCoord().y() << ")" << std::endl;
+		os << "  Normal: (" << vertex.getNormal().x() << ", " << vertex.getNormal().y() << ", " << vertex.getNormal().z() << ")" << std::endl;
+		os << "  Color: (" << static_cast<int>(vertex.getColor()[0]) << ", " << static_cast<int>(vertex.getColor()[1]) << ", " << static_cast<int>(vertex.getColor()[2]) << ", " << static_cast<int>(vertex.getColor()[3]) << ")";
+		return os;
+	}
+
 	void Vertices::load(std::ifstream& file, LumpData& lumpData) {
 		Element::load(file, lumpData);
 		updateYAndZ();

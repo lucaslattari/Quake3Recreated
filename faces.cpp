@@ -22,7 +22,7 @@ namespace BSP {
             warning_assert(face.getLightMapSize()[0] >= 0 && face.getLightMapSize()[1] >= 0,
                 "Invalid lightMapSize values.");
 
-            warning_assert(face.getSize()[0] >= 0 && face.getSize()[1] >= 0, "Invalid face size values.");
+            warning_assert(face.getBezierPatchesSize()[0] >= 0 && face.getBezierPatchesSize()[1] >= 0, "Invalid face size values.");
 
             warning_assert(face.getNormal().length() <= 1.0f, "Normal vector magnitude is greater than 1.0f.");
 
@@ -37,10 +37,30 @@ namespace BSP {
     }
 
     void Faces::displayData() const {
+        std::cout << "Displaying Face Data:" << std::endl;
+        int count = 1;
         for (const auto& face : elements) {
-            // Display face data using getter methods
-            // Add your display code here
+            std::cout << "Face " << count << ": " << face << std::endl;
+            count++;
         }
     }
 
+    std::ostream& operator<<(std::ostream& os, const Face& face) {
+        os << "Texture ID: " << face.textureID << ", ";
+        os << "Effect: " << face.effect << ", ";
+        os << "Type: " << face.type << ", ";
+        os << "Start Vertex Index: " << face.startVertIndex << ", ";
+        os << "Num of Vertices: " << face.numOfVerts << ", ";
+        os << "Start Index: " << face.startIndex << ", ";
+        os << "Num of Indices: " << face.numOfIndices << ", ";
+        os << "Lightmap ID: " << face.lightmapID << ", ";
+        os << "LightMap Corner: [" << face.lightMapCorner[0] << ", " << face.lightMapCorner[1] << "], ";
+        os << "LightMap Size: [" << face.lightMapSize[0] << ", " << face.lightMapSize[1] << "], ";
+        os << "LightMap Position: " << face.lightMapPos << ", ";
+        os << "LightMap Vecs: [" << face.lightMapVecs[0] << ", " << face.lightMapVecs[1] << "], ";
+        os << "Normal: " << face.normal << ", ";
+        os << "Size: [" << face.bezierPatchesSize[0] << ", " << face.bezierPatchesSize[1] << "]";
+
+        return os;
+    }
 }

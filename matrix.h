@@ -100,6 +100,45 @@ public:
 };
 
 template<typename T>
+class Mat3 : public Matrix<T, 3, 3> {
+public:
+    // Explicitly default the constructor to inherit the one from Matrix
+    Mat3() = default;
+
+    Mat3(std::initializer_list<T> values) {
+        if (values.size() != 9) {
+            throw std::length_error("Invalid number of elements");
+        }
+        auto it = values.begin();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                (*this)(i, j) = *it++;
+            }
+        }
+    }
+
+    Mat3(const Matrix<T, 3, 3>& matrix) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                (*this)(i, j) = matrix(i, j);
+            }
+        }
+    }
+
+    Vec3<T> operator*(const Vec3<T>& vec) const {
+        Vec3<T> result;
+        for (int i = 0; i < 3; i++) {
+            T sum = 0;
+            for (int j = 0; j < 3; j++) {
+                sum += (*this)(i, j) * vec[j];
+            }
+            result[i] = sum;
+        }
+        return result;
+    }
+};
+
+template<typename T>
 class Mat4 : public Matrix<T, 4, 4> {
 public:
     // Explicitly default the constructor to inherit the one from Matrix
@@ -125,10 +164,10 @@ public:
         }
     }
 
-    static Mat4<T> rotate(float angle, const Vec3<T>& axis) {
+    static Mat4<T> rotate(T angle, const Vec3<T>& axis) {
         Vec3<T> u = axis.normalize();
-        float s = std::sin(angle);
-        float c = std::cos(angle);
+        float s = std::sin(static_cast<T>(angle));
+        float c = std::cos(static_cast<T>(angle));
         float oc = 1.0f - c;
 
         return Mat4<T>{
@@ -147,6 +186,80 @@ public:
             }
         }
         return result;
+    }
+
+    Mat4<T> inverse() const {
+        Mat4<T> inv;
+        T det;
+
+        //T* m = reinterpret_cast<T*>(this->getData());
+        //T* invOut = reinterpret_cast<T*>(inv.getData());
+
+        std::array<T, 16> m_copy;
+        std::copy(this->getData(), this->getData() + 16, m_copy.begin());
+        T* m = m_copy.data();
+
+        std::copy(inv.getData(), inv.getData() + 16, m_copy.begin());
+        T* invOut = m_copy.data();
+
+        // First row (Cramer method)
+        invOut[0] = m[5] * m[10] * m[15] - m[5] * m[11] * m[14] - m[9] * m[6] * m[15] + m[9] * m[7] * m[14] + m[13] * m[6] * m[11] - m[13] * m[7] * m[10];
+        invOut[4] = -m[4] * m[10] * m[15] + m[4] * m[11] * m[14] + m[8] * m[6] * m[15] - m[8] * m[7] * m[14] - m[12] * m[6] * m[11] + m[12] * m[7] * m[10];
+        invOut[8] = m[4] * m[9] * m[15] - m[4] * m[11] * m[13] - m[8] * m[5] * m[15] + m[8] * m[7] * m[13] + m[12] * m[5] * m[11] - m[12] * m[7] * m[9];
+        invOut[12] = -m[4] * m[9] * m[14] + m[4] * m[10] * m[13] + m[8] * m[5] * m[14] - m[8] * m[6] * m[13] - m[12] * m[5] * m[10] + m[12] * m[6] * m[9];
+
+        // Calculate determinant
+        det = m[0] * invOut[0] + m[1] * invOut[4] + m[2] * invOut[8] + m[3] * invOut[12];
+        if (det == 0)
+            throw std::runtime_error("Matrix is singular and cannot be inverted.");
+
+        det = 1.0 / det;
+
+        // Second row
+        invOut[1] = -m[1] * m[10] * m[15] + m[1] * m[11] * m[14] + m[9] * m[2] * m[15] - m[9] * m[3] * m[14] - m[13] * m[2] * m[11] + m[13] * m[3] * m[10];
+        invOut[5] = m[0] * m[10] * m[15] - m[0] * m[11] * m[14] - m[8] * m[2] * m[15] + m[8] * m[3] * m[14] + m[12] * m[2] * m[11] - m[12] * m[3] * m[10];
+        invOut[9] = -m[0] * m[9] * m[15] + m[0] * m[11] * m[13] + m[8] * m[1] * m[15] - m[8] * m[3] * m[13] - m[12] * m[1] * m[11] + m[12] * m[3] * m[9];
+        invOut[13] = m[0] * m[9] * m[14] - m[0] * m[10] * m[13] - m[8] * m[1] * m[14] + m[8] * m[2] * m[13] + m[12] * m[1] * m[10] - m[12] * m[2] * m[9];
+
+        // Third row
+        invOut[2] = m[1] * m[6] * m[15] - m[1] * m[7] * m[14] - m[5] * m[2] * m[15] + m[5] * m[3] * m[14] + m[13] * m[2] * m[7] - m[13] * m[3] * m[6];
+        invOut[6] = -m[0] * m[6] * m[15] + m[0] * m[7] * m[14] + m[4] * m[2] * m[15] - m[4] * m[3] * m[14] - m[12] * m[2] * m[7] + m[12] * m[3] * m[6];
+        invOut[10] = m[0] * m[5] * m[15] - m[0] * m[7] * m[13] - m[4] * m[1] * m[15] + m[4] * m[3] * m[13] + m[12] * m[1] * m[7] - m[12] * m[3] * m[5];
+        invOut[14] = -m[0] * m[5] * m[14] + m[0] * m[6] * m[13] + m[4] * m[1] * m[14] - m[4] * m[2] * m[13] - m[12] * m[1] * m[6] + m[12] * m[2] * m[5];
+
+        // Fourth row
+        invOut[3] = -m[1] * m[6] * m[11] + m[1] * m[7] * m[10] + m[5] * m[2] * m[11] - m[5] * m[3] * m[10] - m[9] * m[2] * m[7] + m[9] * m[3] * m[6];
+        invOut[7] = m[0] * m[6] * m[11] - m[0] * m[7] * m[10] - m[4] * m[2] * m[11] + m[4] * m[3] * m[10] + m[8] * m[2] * m[7] - m[8] * m[3] * m[6];
+        invOut[11] = -m[0] * m[5] * m[11] + m[0] * m[7] * m[9] + m[4] * m[1] * m[11] - m[4] * m[3] * m[9] - m[8] * m[1] * m[7] + m[8] * m[3] * m[5];
+        invOut[15] = m[0] * m[5] * m[10] - m[0] * m[6] * m[9] - m[4] * m[1] * m[10] + m[4] * m[2] * m[9] + m[8] * m[1] * m[6] - m[8] * m[2] * m[5];
+
+        // Multiply each element by 1/det
+        for (int i = 0; i < 16; i++) {
+            invOut[i] *= det;
+        }
+
+        return inv;
+    }
+
+    Mat3<T> getSubmatrix3x3(int rowToRemove, int colToRemove) const {
+        Mat3<T> submatrix;
+        int subRow = 0, subCol = 0;
+
+        for (int row = 0; row < 4; ++row) {
+            if (row == rowToRemove) continue;
+
+            subCol = 0;
+            for (int col = 0; col < 4; ++col) {
+                if (col == colToRemove) continue;
+
+                submatrix(subRow, subCol) = (*this)(row, col);
+                ++subCol;
+            }
+
+            ++subRow;
+        }
+
+        return submatrix;
     }
 };
 

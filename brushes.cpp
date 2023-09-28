@@ -11,9 +11,14 @@ namespace BSP {
     }
 
     void Brushes::displayData() const {
+        std::cout << "Displaying Brush Data:" << std::endl;
+        int count = 1;
         for (const auto& brush : elements) {
-            // Display brush data using getter methods
-            // Add your display code here
+            std::cout << "Brush " << count << ": " << std::endl;
+            std::cout << "  Brush Side: " << brush.getBrushSide() << std::endl;
+            std::cout << "  Number of Brush Sides: " << brush.getNumOfBrushSides() << std::endl;
+            std::cout << "  Texture ID: " << brush.getTextureID() << std::endl;
+            count++;
         }
     }
 }

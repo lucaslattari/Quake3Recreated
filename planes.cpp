@@ -35,9 +35,17 @@ namespace BSP {
     }
 
     void Planes::displayData() const {
+        std::cout << "Displaying Plane Data:" << std::endl;
+        int count = 1;
         for (const auto& plane : elements) {
-            // Display plane data using getter methods
-            // Add your display code here
+            std::cout << "Plane " << count << ": " << std::endl;
+
+            const auto& normal = plane.getNormal();
+            std::cout << "  Normal: [" << normal.x() << ", " << normal.y() << ", " << normal.z() << "]" << std::endl;
+
+            std::cout << "  Distance from Origin: " << plane.getDistanceFromOrigin() << std::endl;
+
+            count++;
         }
     }
 }

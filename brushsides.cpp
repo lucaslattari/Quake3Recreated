@@ -10,12 +10,13 @@ namespace BSP {
     }
 
     void BrushSides::displayData() const {
+        std::cout << "Displaying BrushSide Data:" << std::endl;
+        int count = 1;
         for (const auto& brushSide : elements) {
-            // Display brush side data using getter methods
-            // Add your display code here
-            // Example:
-            // std::cout << "Plane index: " << brushSide.getPlaneIndex()
-            //           << ", Texture ID: " << brushSide.getTextureID() << std::endl;
+            std::cout << "BrushSide " << count << ": " << std::endl;
+            std::cout << "  Plane Index: " << brushSide.getPlaneIndex() << std::endl;
+            std::cout << "  Texture ID: " << brushSide.getTextureID() << std::endl;
+            count++;
         }
     }
 }

@@ -32,6 +32,7 @@ namespace BSP {
 					// Check if each color channel value is between 0 and 255
 					for (int k = 0; k < 3; k++) {
 						warning_assert(pixel[k] >= 0 && pixel[k] <= 255, "Invalid RGB value.");
+						std::cout << pixel[k] << std::endl;
 					}
 				}
 			}

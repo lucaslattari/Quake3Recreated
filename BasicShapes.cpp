@@ -4,13 +4,13 @@ void drawAxes(GLuint shaderProgram) {
     float axesVertices[] = {
         // Eixo X (vermelho)
         0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        100.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
         // Eixo Y (verde)
         0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 100.0f, 0.0f, 0.0f, 1.0f, 0.0f,
         // Eixo Z (azul)
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
+        0.0f, 0.0f, 100.0f, 0.0f, 0.0f, 1.0f
     };
 
     GLuint axesVao, axesVbo;

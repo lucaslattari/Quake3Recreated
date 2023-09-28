@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_map>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -22,6 +23,7 @@
 
 #include "vector.h"
 #include "indexedData.h"
+#include "bezierPatches.h"
 
 namespace BSP {
     // This is our BSP header structure
@@ -38,10 +40,7 @@ namespace BSP {
         ~Loader();
 
         bool load(const std::string& filename);
-        void loadLumps(std::ifstream& file);
-
-        void initializeFaces();
-        
+        void loadLumps(std::ifstream& file);        
         void drawLevel(const Vec3<float>& vPos);
 
     private:
@@ -62,10 +61,16 @@ namespace BSP {
         IndexedData             leafFaces;
         IndexedData             leafBrushes;
 
-        std::map<int, GLuint> m_VAOs;
+        GLuint globalVAO, globalVBO;
+        std::unordered_map<int, int> faceToOffsetMap;
+        std::vector<PatchData> patches;
 
         void displayHeaderData(Header& header);
         void displayLumpData(LumpData(&lumps)[static_cast<int>(LUMPS::MAXLUMPS)]);
         void drawFace(int faceIndex);
+
+        void initializeBezierPatches();
+        void initializeFaces();
+        void initializeQuadraticPatches(PatchData& patchData, const Face& face);
     };
 }

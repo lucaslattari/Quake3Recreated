@@ -4,6 +4,8 @@
 #include "vector.h"
 #include "utils.h"
 
+#include <iostream>
+
 namespace BSP {
     // BSP vertex class
     class Vertex {
@@ -32,6 +34,8 @@ namespace BSP {
         Vec3f normal;           // (x, y, z) normal vector
         char color[4];          // RGBA color for the vertex
     };
+
+    std::ostream& operator<<(std::ostream& os, const Vertex& vertex);
 
     class Vertices : public BSP::Element<Vertex> {
     public:

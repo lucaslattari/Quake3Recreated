@@ -17,12 +17,13 @@ namespace BSP {
 
 	Loader::~Loader()
 	{
-		for (const auto& pair : m_VAOs) {
-			GLuint VAO = pair.second;
-			glDeleteVertexArrays(1, &VAO);
-		}
-	}
+		// Delete the unique VAO
+		glDeleteVertexArrays(1, &globalVAO);
 
+		// Se você tiver um VBO e EBO globais, também pode deletá-los aqui.
+		glDeleteBuffers(1, &globalVBO);
+		//glDeleteBuffers(1, &globalEBO);
+	}
 
 	bool Loader::load(const std::string& filename)
 	{
@@ -70,37 +71,80 @@ namespace BSP {
 		// Read the vertex data
 		vertices.load(file, lumps[static_cast<int>(LUMPS::VERTICES)]);
 
+		//vertices.displayData();
+		//vertices.validate();
+		//std::cin.get();
+
 		// Read the face data
 		faces.load(file, lumps[static_cast<int>(LUMPS::FACES)]);
+
+		//faces.displayData();
+		//faces.validate();
+		//std::cin.get();
 
 		// Read texture data
 		textures.load(file, lumps[static_cast<int>(LUMPS::TEXTURES)]);
 
+		//textures.displayData();
+		//textures.validate();
+		//std::cin.get();
+
 		// Read lightmap data
 		lightmaps.load(file, lumps[static_cast<int>(LUMPS::LIGHTMAPS)]);
+
+		//lightmaps.displayData();
+		//lightmaps.validate();
+		//std::cin.get();
 
 		// Read nodes data
 		nodes.load(file, lumps[static_cast<int>(LUMPS::NODES)]);
 
+		//nodes.displayData();
+		//nodes.validate();
+		//std::cin.get();
+
 		// Read leaves data
 		leaves.load(file, lumps[static_cast<int>(LUMPS::LEAVES)]);
+
+		//leaves.displayData();
+		//leaves.validate();
+		//std::cin.get();
 
 		// Read planes data
 		planes.load(file, lumps[static_cast<int>(LUMPS::PLANES)]);
 
+		//planes.displayData();
+		//planes.validate();
+		//std::cin.get();
+
 		// Read pvs (potentially visible sets) data
 		pvs.load(file, lumps[static_cast<int>(LUMPS::PVS)]);
+
+		//pvs.displayData();
+		//pvs.validate();
+		//std::cin.get();
 
 		// Read brushes data
 		brushes.load(file, lumps[static_cast<int>(LUMPS::BRUSHES)]);
 
+		//brushes.displayData();
+		//brushes.validate();
+		//std::cin.get();
+
 		// Read brush sides data
 		brushsides.load(file, lumps[static_cast<int>(LUMPS::BRUSH_SIDES)]);
+
+		//brushsides.displayData();
+		//brushsides.validate();
+		//std::cin.get();
 
 		// Read indices data
 		indices.load(file, 
 			lumps[static_cast<int>(LUMPS::INDICES)].length,
 			lumps[static_cast<int>(LUMPS::INDICES)].offset);
+
+		//indices.displayData();
+		//std::cin.get();
 
 		// Read leaf faces data
 		leafFaces.load(file,
@@ -130,7 +174,7 @@ namespace BSP {
 	void Loader::drawLevel(const Vec3<float>& vPos) {
 		// For each face
 		for (int faceIndex = 0; faceIndex < faces.size(); faceIndex++) {
-			if (faces.getData()[faceIndex].getType() != FaceType::FACE_POLYGON)
+			if (faces.getData()[faceIndex].getType() != BSP::FACE_POLYGON && faces.getData()[faceIndex].getType() != BSP::FACE_MESH)
 				continue;
 
 			drawFace(faceIndex);
@@ -138,66 +182,147 @@ namespace BSP {
 	}
 
 	void Loader::initializeFaces() {
-		// Percorra todas as faces
-		for (int faceIndex = 0; faceIndex < faces.size(); faceIndex++) {
+		std::vector<float> bufferVertexData;
+		std::vector<GLuint> bufferIndicesData;
 
+		int totalPolygons = 0;
+		int totalMeshes = 0;
+		int totalPatches = 0;
+		int totalBillboards = 0;
+
+		// Loop through all the faces
+		for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex) {
 			const BSP::Face& face = faces.getData()[faceIndex];
 
-			if (face.getType() == BSP::FACE_POLYGON) {
-				int start = face.getStartVertIndex();
-				int count = face.getNumOfVerts();
+			if (face.getType() == BSP::FACE_POLYGON)
+				totalPolygons++;
+			if (face.getType() == BSP::FACE_MESH)
+				totalMeshes++;
+			if (face.getType() == BSP::FACE_PATCH)
+				totalPatches++;
+			if (face.getType() == BSP::FACE_BBOARD)
+				totalBillboards++;
 
-				std::vector<Vertex> verticesForThisFace(vertices.getData().begin() + start, vertices.getData().begin() + start + count);
+			if (face.getType() == BSP::FACE_POLYGON || face.getType() == BSP::FACE_MESH) {
+				faceToOffsetMap[faceIndex] = bufferVertexData.size();
 
-				std::vector<int> indices = this->indices.getValues();
-				std::vector<float> vertexData;
-				for (const auto& vertex : verticesForThisFace) {
-					vertexData.push_back(vertex.getPosition().x());
-					vertexData.push_back(vertex.getPosition().y());
-					vertexData.push_back(vertex.getPosition().z());
+				int startMeshVert = face.getStartIndex();
+				int endMeshVert = startMeshVert + face.getNumOfIndices();
 
-					// Adicione outros atributos, como coordenadas de textura, se desejar
-					// Adicione a cor, assumindo que está armazenada como RGBA (0-255)
+				for (int index = startMeshVert; index < endMeshVert; index++) {
+					int meshVertIndex = indices.getValues()[index];
+					const Vertex& vertex = vertices.getData()[face.getStartVertIndex() + meshVertIndex];
+
+					bufferVertexData.push_back(vertex.getPosition().x());
+					bufferVertexData.push_back(vertex.getPosition().y());
+					bufferVertexData.push_back(vertex.getPosition().z());
+
 					for (int i = 0; i < 4; i++) {
-						vertexData.push_back(static_cast<float>(vertex.getColor()[i]) / 255.0f);
+						bufferVertexData.push_back(static_cast<float>(vertex.getColor()[i]) / 255.0f);
 					}
 				}
+			}
+		}
 
-				GLuint VAO, VBO, EBO;
-				glGenVertexArrays(1, &VAO);
-				glGenBuffers(1, &VBO);
-				glGenBuffers(1, &EBO);
+		std::cout << "total polygons:" << totalPolygons << std::endl;
+		std::cout << "total meshes:" << totalMeshes << std::endl;
+		std::cout << "total patches:" << totalPatches << std::endl;
+		std::cout << "total billboards:" << totalBillboards << std::endl;
 
-				glBindVertexArray(VAO);
-				glBindBuffer(GL_ARRAY_BUFFER, VBO);
-				glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_STATIC_DRAW);
+		glGenVertexArrays(1, &globalVAO);
+		glBindVertexArray(globalVAO);
 
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-				glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+		glGenBuffers(1, &globalVBO);
 
-				// Configurar atributos do vértice para a posição
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
-				glEnableVertexAttribArray(0);
+		// Imprime o conteúdo de bufferVertexData para depuração
+		/*std::cout << "Conteudo de bufferVertexData:" << std::endl;
+		for (size_t i = 0; i < bufferVertexData.size(); i += 7) {
+			std::cout << "Vertice " << (i / 7) << ": ";
+			std::cout << "X = " << bufferVertexData[i] << ", ";
+			std::cout << "Y = " << bufferVertexData[i + 1] << ", ";
+			std::cout << "Z = " << bufferVertexData[i + 2] << std::endl;
 
-				// Configurar atributos do vértice para a cor
-				glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
-				glEnableVertexAttribArray(1);
+			std::cout << "R = " << bufferVertexData[i + 3] << ", ";
+			std::cout << "G = " << bufferVertexData[i + 4] << ", ";
+			std::cout << "B = " << bufferVertexData[i + 5] << ", ";
+			std::cout << "A = " << bufferVertexData[i + 6] << std::endl;
+		}
+		std::cin.get();*/
 
-				// Desvincular o VBO e VAO (opcional, mas uma boa prática)
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, globalVBO);
+		glBufferData(GL_ARRAY_BUFFER, bufferVertexData.size() * sizeof(float), 
+			bufferVertexData.data(), GL_STATIC_DRAW);
 
-				m_VAOs[faceIndex] = VAO;
+		// Atributo para posição do vértice
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+
+		// Atributo para cor do vértice
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+
+		glBindVertexArray(0);
+	}
+
+	void Loader::initializeBezierPatches() {
+		// Contando o número de patches
+		int numPatches = 0;
+		for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex) {
+			const BSP::Face& face = faces.getData()[faceIndex];
+			if (face.getType() == FACE_PATCH) {
+				numPatches++;
+			}
+		}
+
+		// Reservando espaço para os dados de patch
+		patches.reserve(numPatches);
+
+		// Inicializando dados de patch
+		for (int faceIndex = 0; faceIndex < faces.size(); ++faceIndex) {
+			const BSP::Face& face = faces.getData()[faceIndex];
+			if (face.getType() == FACE_PATCH) {
+				// Criar um objeto PatchData usando o construtor
+				PatchData patchData(faceIndex, face.getTextureID(), 
+					face.getLightmapID(), face.getBezierPatchesSize()[0], 
+					face.getBezierPatchesSize()[1]);
+
+				// Chamando uma função separada para inicializar os patches quadráticos
+				initializeQuadraticPatches(patchData, face);
+
+				patches.push_back(patchData);
+			}
+		}
+	}
+
+	void Loader::initializeQuadraticPatches(PatchData& patchData, const Face& face) {
+		int width = (patchData.getWidth() - 1) / 2;
+		int height = (patchData.getHeight() - 1) / 2;
+		patchData.resizeQuadraticPatches(width * height);
+
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				const QuadraticPatch& quadPatch = patchData.getQuadraticPatches()[y * width + x];
+				for (int r = 0; r < 3; r++) {
+					for (int c = 0; c < 3; c++) {
+						// ... preencher os pontos de controle ...
+					}
+				}
+				// Chamando uma função separada para tessellation
+				//tessellateQuadraticPatch(quadPatch);
 			}
 		}
 	}
 
 	void Loader::drawFace(int faceIndex) {
-		if (faces.getData()[faceIndex].getType() != FaceType::FACE_POLYGON)
-			return;
+		const BSP::Face& face = faces.getData()[faceIndex];
 
-		glBindVertexArray(m_VAOs[faceIndex]); // Ligar VAO
-		glDrawElements(GL_TRIANGLES, this->indices.getValues().size(), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0); // Desligar VAO
+		// Bind VAO
+		glBindVertexArray(globalVAO);
+
+		glDrawArrays(GL_TRIANGLES, static_cast<GLuint>(faceToOffsetMap[faceIndex] / 7), 
+			face.getNumOfIndices());
+
+		// Desvincule o VAO
+		glBindVertexArray(0);
 	}
 }

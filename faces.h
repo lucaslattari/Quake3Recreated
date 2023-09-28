@@ -26,7 +26,9 @@ namespace BSP {
         Vec3<float> getLightMapPos() const { return lightMapPos; }
         const Vec3<float>* getLightMapVecs() const { return lightMapVecs; }
         Vec3<float> getNormal() const { return normal; }
-        const int* getSize() const { return size; }
+        const int* getBezierPatchesSize() const { return bezierPatchesSize; }
+
+        friend std::ostream& operator<<(std::ostream& os, const Face& face);
 
         // Mutator (setter) methods
         // Add setter methods if needed
@@ -42,7 +44,7 @@ namespace BSP {
             lightmapID(0), 
             lightMapCorner{ 0,0 }, 
             lightMapSize{ 0,0 }, 
-            size{ 0,0 } {}
+            bezierPatchesSize{ 0,0 } {}
 
         ~Face() = default;
 
@@ -60,7 +62,7 @@ namespace BSP {
         Vec3f lightMapPos;
         Vec3f lightMapVecs[2];
         Vec3f normal;
-        int size[2];
+        int bezierPatchesSize[2];
     };
 
     class Faces : public BSP::Element<Face> {
