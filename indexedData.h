@@ -22,6 +22,7 @@ public:
 
     // Getter methods
     const std::vector<int>& getValues() const { return values; }
+    std::vector<int>& getValues() { return values; }
 
     // Setter methods
     void setValues(const std::vector<int>& newValues) { values = newValues; }

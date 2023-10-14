@@ -16,6 +16,7 @@ GLuint initShader() {
         "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
         "   color = aColor;\n"
         "}\0";
+    
 
     // Fragment shader source code
     const char* fragmentShaderSource = "#version 330 core\n"

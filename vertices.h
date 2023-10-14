@@ -22,7 +22,13 @@ namespace BSP {
         void setTextureCoord(const Vec2f& newTextureCoord) { textureCoord = newTextureCoord; }
         void setLightmapCoord(const Vec2f& newLightmapCoord) { lightmapCoord = newLightmapCoord; }
         void setNormal(const Vec3f& newNormal) { normal = newNormal; }
-        void setColor(const char newColor[4]) { std::copy(newColor, newColor + 4, color); }
+
+        //TODO: tirar esse char[4] daqui
+        void setColor(const Vec4f& newColor) {
+            for (int i = 0; i < 4; ++i) {
+                color[i] = static_cast<char>(newColor[i]);
+            }
+        }
 
         Vertex() : color{} {}
         ~Vertex() = default;

@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <string>
 
 bool initGLAD();
 
@@ -13,3 +14,5 @@ void setupOpenGL();
 
 //called whenever the window is resized
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+
+void checkGLError(const std::string& label);

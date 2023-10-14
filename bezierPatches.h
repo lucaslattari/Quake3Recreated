@@ -2,41 +2,34 @@
 
 #include <iostream>
 #include <vector>
-
+#include "indexedData.h"
 #include "vertices.h"
 
 class QuadraticPatch {
 private:
     std::vector<BSP::Vertex> vertices;  // Vetor de vértices
-    std::vector<GLuint> indices;  // Vetor de índices
+    IndexedData indices;  // Vetor de índices
     BSP::Vertex controlPoints[9];  // Pontos de controle para interpolação
     std::vector<int> trianglesPerRow;  // Triângulos por linha
-    std::vector<std::vector<unsigned int>> rowIndices;  // Índices por linha
+    IndexedData rowIndices;  // Índices por linha
 
 public:
     // Métodos para acessar e modificar os membros, se necessário
     const std::vector<BSP::Vertex>& getVertices() const { return vertices; }
     std::vector<BSP::Vertex>& getVertices() { return vertices; }
-    const std::vector<GLuint>& getIndices() const { return indices; }
-    std::vector<GLuint>& getIndices() { return indices; }
+    const IndexedData& getIndices() const { return indices; }
+    IndexedData& getIndices() { return indices; }
     const BSP::Vertex* getControlPoints() const { return controlPoints; }
     BSP::Vertex* getControlPoints() { return controlPoints; }
     const std::vector<int>& getTrianglesPerRow() const { return trianglesPerRow; }
     std::vector<int>& getTrianglesPerRow() { return trianglesPerRow; }
-    const std::vector<std::vector<unsigned int>>& getRowIndices() const { return rowIndices; }
-    std::vector<std::vector<unsigned int>>& getRowIndices() { return rowIndices; }
+    const IndexedData& getRowIndices() const { return rowIndices; }
+    IndexedData& getRowIndices() { return rowIndices; }
+    friend std::ostream& operator<<(std::ostream& os, const QuadraticPatch& patch);
 
     // Método de tesselação
-    void Tesselate() {
-        // ... código de tesselação
-    }
-
-    // Método de desenho
-    void Draw() {
-        // ... código de desenho
-    }
-
-    // ... outros métodos e propriedades necessárias
+    void tesselate(int tessellationLevel);
+    void displayData() const;
 };
 
 class PatchData {
@@ -49,7 +42,6 @@ private:
     std::vector<QuadraticPatch> quadraticPatches;
 
 public:
-public:
     // Construtor
     PatchData(int faceId, int textureId, int lightmapId, int width, int height)
         : faceId(faceId), textureId(textureId), lightmapId(lightmapId), width(width), height(height) {}
@@ -61,7 +53,8 @@ public:
     int getWidth() const { return width; }
     int getHeight() const { return height; }
     const std::vector<QuadraticPatch>& getQuadraticPatches() const { return quadraticPatches; }
-
+    std::vector<QuadraticPatch>& getQuadraticPatches() { return quadraticPatches; }
+    
     // Setters
     void setFaceId(int faceId) { this->faceId = faceId; }
     void setTextureId(int textureId) { this->textureId = textureId; }
@@ -78,4 +71,8 @@ public:
     void resizeQuadraticPatches(int new_size) {
         quadraticPatches.resize(new_size);
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const PatchData& patchData);
+
+    void displayData() const;
 };

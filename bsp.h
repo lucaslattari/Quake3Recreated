@@ -41,7 +41,10 @@ namespace BSP {
 
         bool load(const std::string& filename);
         void loadLumps(std::ifstream& file);        
-        void drawLevel(const Vec3<float>& vPos);
+        void drawLevel(const Vec3<float>& vPos, GLuint shaderProgram);
+
+        void setRenderPolygonsAndMeshes(bool value) { renderPolygonsAndMeshes = value; }
+        void setRenderPatches(bool value) { renderPatches = value; }
 
     private:
         Header header;
@@ -61,9 +64,19 @@ namespace BSP {
         IndexedData             leafFaces;
         IndexedData             leafBrushes;
 
-        GLuint globalVAO, globalVBO;
+        GLuint faceVAO, faceVBO;
+        GLuint patchVAO, patchVBO, patchEBO;
+        GLuint shaderProgram;
+
+        int tesselationLevel;
+
+        bool renderPolygonsAndMeshes = true;  // Flag para renderizar Polygons e Meshes
+        bool renderPatches = true;            // Flag para renderizar Patches
+
         std::unordered_map<int, int> faceToOffsetMap;
         std::vector<PatchData> patches;
+        std::unordered_map<int, int> patchToOffsetMap;
+        std::unordered_map<int, GLuint> indexPatchToOffsetMap;
 
         void displayHeaderData(Header& header);
         void displayLumpData(LumpData(&lumps)[static_cast<int>(LUMPS::MAXLUMPS)]);
@@ -71,6 +84,10 @@ namespace BSP {
 
         void initializeBezierPatches();
         void initializeFaces();
-        void initializeQuadraticPatches(PatchData& patchData, const Face& face);
+        void initializeQuadraticPatches(PatchData& patchData, const Face& face, int tesselationLevel);
+
+        void setTesselationLevel(int level);
+        void debugVBO(GLuint vbo, GLsizei size);
+        void debugEBO(GLuint ebo, size_t size);
     };
 }

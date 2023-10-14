@@ -44,9 +44,8 @@ void renderFrame(PerspectiveCamera& camera, GLuint shaderProgram, BSP::Loader& m
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, projectionMatrix.getData());
 
     drawAxes(shaderProgram); // Draw coordinate axes
-    //drawTriangle(shaderProgram); // Draw a triangle
 
-    map.drawLevel(Vec3<float>(0.0f, 0.0f, 0.0f));
+    map.drawLevel(Vec3<float>(0.0f, 0.0f, 0.0f), shaderProgram);
 }
 
 int main(int argc, char* argv[]) {
@@ -116,6 +115,29 @@ int main(int argc, char* argv[]) {
         const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
         if (keyEvent.action == GLFW_PRESS && (keyEvent.key == GLFW_KEY_ESCAPE || keyEvent.key == GLFW_KEY_Q)) {
             glfwSetWindowShouldClose(window, true);
+        }
+        });
+
+    // Listener for F1, F2, F3 keys to toggle rendering modes
+    eventSystem.addListener(EventType::KeyPress, [&BSPMap](const Event& event) {
+        const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
+        if (keyEvent.action == GLFW_PRESS) {
+            switch (keyEvent.key) {
+            case GLFW_KEY_F1:
+                BSPMap.setRenderPolygonsAndMeshes(true);
+                BSPMap.setRenderPatches(false);
+                break;
+            case GLFW_KEY_F2:
+                BSPMap.setRenderPolygonsAndMeshes(false);
+                BSPMap.setRenderPatches(true);
+                break;
+            case GLFW_KEY_F3:
+                BSPMap.setRenderPolygonsAndMeshes(true);
+                BSPMap.setRenderPatches(true);
+                break;
+            default:
+                break;
+            }
         }
         });
 

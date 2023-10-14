@@ -40,3 +40,10 @@ void setupOpenGL() {
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
+
+void checkGLError(const std::string& label) {
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        std::cerr << label << " - GL Error: " << error << std::endl;
+    }
+}
