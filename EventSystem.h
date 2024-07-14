@@ -8,6 +8,7 @@
 enum class EventType {
     KeyPress,
     MouseMove,
+    MouseScroll, // Adicionado
 };
 
 class Event {
@@ -27,6 +28,12 @@ public:
     MouseMoveEvent(double xpos, double ypos);
 };
 
+class MouseScrollEvent : public Event {
+public:
+    double xoffset, yoffset;
+    MouseScrollEvent(double xoffset, double yoffset);
+};
+
 using EventListener = std::function<void(const Event&)>;
 
 class EventSystem {
@@ -41,3 +48,4 @@ public:
 // Declaração dos callbacks
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouseCallback(GLFWwindow* window, double xpos, double ypos);
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);

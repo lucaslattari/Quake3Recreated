@@ -13,7 +13,7 @@ public:
     void updateProjectionMatrix() override;
     Mat4<float> getProjectionMatrix() const override;
 
-    // Perspective-specific attributes and methods can be included here.
+    void setFov(float newFov);
 
 private:
     float fov;

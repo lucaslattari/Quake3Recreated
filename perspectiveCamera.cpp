@@ -39,3 +39,8 @@ void PerspectiveCamera::updateProjectionMatrix() {
 Mat4<float> PerspectiveCamera::getProjectionMatrix() const {
     return projectionMatrix;
 }
+
+void PerspectiveCamera::setFov(float newFov) {
+    fov = newFov;
+    updateProjectionMatrix();
+}

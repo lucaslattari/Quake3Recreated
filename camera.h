@@ -17,8 +17,11 @@ public:
     Vec3<float> getPosition() const;
     void setPosition(const Vec3<float>& newPosition);
     Vec3<float> getForward() const;
+    void setForward(const Vec3<float>& newForward); // Adicionado
     Vec3<float> getUp() const;
+    void setUp(const Vec3<float>& newUp); // Adicionado
     Vec3<float> getRight() const;
+    void setRight(const Vec3<float>& newRight); // Adicionado
 
     // Common methods
     void translate(const Vec3<float>& translation);
